@@ -30,6 +30,7 @@ Based on this comprehensive user data, provide analysis on:
 3. **Productivity Assessment** - How time is distributed across activities
 4. **Engagement Patterns** - Notable interactions with forms and autofill
 5. **Gentle Improvement Suggestions** - Privacy-respecting recommendations
+6. **Risk Assessment** - media usage and autofill patterns along with website name where media access was requested
 
 Format your response with clear sections and bullet points.
 `;
@@ -44,10 +45,9 @@ Format your response with clear sections and bullet points.
         stream: false,
       }),
     });
-    console.log("LLM response status:", response.status);
 
     const data = await response.json();
-
+    console.log("LLM response status:", data);
     res.json({ analysis: data.response });
   } catch (err) {
     res.status(500).json({ error: err.message });
