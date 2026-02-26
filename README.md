@@ -69,12 +69,14 @@ LLM (Ollama)
 ### Setup
 
 1. **Install Ollama**
+
    ```bash
    # Download from https://ollama.ai
    # Installation instructions for macOS/Windows/Linux
    ```
 
 2. **Run Ollama Server**
+
    ```bash
    # Start ollama in the background
    ollama serve
@@ -112,23 +114,27 @@ LLM (Ollama)
 ### What Gets Tracked
 
 #### Browsing Activity
+
 - URL and domain of visited websites
 - Duration spent on each site
 - Tab switching events
 
 #### Media Device Access
+
 - When camera/microphone is accessed
 - Duration of access
 - Access denied/permission errors
 - Media type (video, audio, or both)
 
 #### Form Autofill
+
 - Fields that are autofilled by the browser
 - Field types (email, password, text, etc.)
 - Form submissions with autofilled data
 - Number of autofilled fields per submission
 
 #### Sensitive Fields
+
 - Password input fields
 - Email input fields
 - Payment/credit card fields
@@ -213,6 +219,7 @@ The LLM provides:
 ### Check Stored Data
 
 In the browser console:
+
 ```javascript
 chrome.storage.local.get(null, (data) => {
   console.log(data);
@@ -252,7 +259,7 @@ chrome_extension/
 
 ## Privacy Considerations
 
-⚠️ **Important**: This extension stores all activity data locally on your device. 
+⚠️ **Important**: This extension stores all activity data locally on your device.
 
 - All data is stored in Chrome's local storage
 - Data is only sent to your local LLM server for analysis
@@ -269,6 +276,7 @@ Manifest V3 content scripts run in an isolated world, preventing direct access t
 ### Autofill Detection Method
 
 Autofill detection uses:
+
 1. CSS animation triggers on `:-webkit-autofill` pseudo-class
 2. Computed style checks for `webkitAutofillBackground` and `webkitAutofillTextFill`
 3. Form submission monitoring to count autofilled fields
@@ -330,6 +338,7 @@ MIT
 ## Support
 
 For issues or questions, check:
+
 1. Console logs (browser and backend)
 2. Service Worker logs
 3. Stored data in Chrome storage
@@ -338,4 +347,5 @@ For issues or questions, check:
 ---
 
 **Last Updated**: February 27, 2026
+
 # activityTrackerChromeExtension

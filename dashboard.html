@@ -1,0 +1,182 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Activity</title>
+    <style>
+      body {
+        margin: 0;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+        background: #f5f5f7;
+        color: #1d1d1f;
+      }
+      .ring-container {
+        position: relative;
+        width: 160px;
+        height: 160px;
+        margin: 10px auto;
+      }
+
+      .ring-text {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #ringValue {
+        font-size: 26px;
+        font-weight: 600;
+      }
+
+      .ring-label {
+        font-size: 13px;
+        color: #6e6e73;
+      }
+      .wrapper {
+        max-width: 900px;
+        margin: 60px auto;
+        padding: 0 20px;
+      }
+
+      h1 {
+        font-size: 32px;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      .summary {
+        font-size: 15px;
+        color: #6e6e73;
+        margin-bottom: 40px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 20px;
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+        border-radius: 18px;
+        padding: 22px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+      }
+
+      .card h3 {
+        margin: 0 0 18px 0;
+        font-size: 18px;
+        font-weight: 600;
+      }
+      .insight-content {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #1d1d1f;
+      }
+
+      .section-title {
+        font-size: 15px;
+        font-weight: 600;
+        margin-top: 18px;
+        margin-bottom: 6px;
+      }
+
+      .bullet {
+        color: #6e6e73;
+        margin-left: 4px;
+      }
+
+      .site {
+        margin-bottom: 18px;
+      }
+
+      .site-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        margin-bottom: 6px;
+      }
+
+      .time {
+        color: #6e6e73;
+      }
+
+      .bar {
+        height: 4px;
+        background: #e5e5ea;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .bar-fill {
+        height: 100%;
+        background: #0071e3;
+        border-radius: 10px;
+        transition: width 0.4s ease;
+      }
+
+      canvas {
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <h1>Browsing Activity</h1>
+      <div class="summary" id="summary"></div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Usage</h3>
+          <div id="report"></div>
+        </div>
+
+        <div class="card">
+          <h3>Breakdown</h3>
+          <div class="card">
+            <h3>Focus Distribution</h3>
+            <div class="ring-container">
+              <svg width="160" height="160">
+                <circle
+                  cx="80"
+                  cy="80"
+                  r="70"
+                  stroke="#e5e5ea"
+                  stroke-width="10"
+                  fill="none"
+                />
+                <circle
+                  id="ring"
+                  cx="80"
+                  cy="80"
+                  r="70"
+                  stroke="#0071e3"
+                  stroke-width="10"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-dasharray="440"
+                  stroke-dashoffset="440"
+                  transform="rotate(-90 80 80)"
+                />
+              </svg>
+
+              <div class="ring-text">
+                <div id="ringValue">0%</div>
+                <div class="ring-label">Focus</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Insights</h3>
+      <div id="insights">Analyzing behaviour...</div>
+    </div>
+    <script src="dashboard.js"></script>
+  </body>
+</html>

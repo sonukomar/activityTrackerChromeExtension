@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Activity Tracker",
+  "version": "1.0",
+  "description": "Tracks browsing activity, media access, and autofill usage",
+
+  "permissions": ["tabs", "storage", "idle"],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}
