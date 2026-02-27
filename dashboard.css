@@ -1,0 +1,385 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  color: #1d1d1f;
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+.wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 40px;
+  padding-top: 20px;
+}
+
+.header-content {
+  flex: 1;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+.summary {
+  font-size: 15px;
+  color: #555;
+  margin-bottom: 30px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  border-left: 4px solid #667eea;
+  font-weight: 500;
+}
+
+.export-btn {
+  margin-top: 8px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary {
+  background: #e8eef7;
+  color: #667eea;
+}
+
+.btn-secondary:hover {
+  background: #d4dce9;
+  transform: translateY(-2px);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.card.full-width {
+  grid-column: 1 / -1;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 12px;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+.site {
+  margin-bottom: 20px;
+  padding: 14px;
+  background: #f8f9fb;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.site:hover {
+  background: #f0f2f7;
+  transform: translateX(4px);
+}
+
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: #333;
+}
+
+.time {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.bar {
+  height: 6px;
+  background: #e5e5ea;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+  transition: width 0.4s ease;
+  width: var(--bar-width, 0%);
+}
+
+canvas {
+  margin-top: 10px;
+  max-width: 100%;
+}
+
+.insight-content {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #333;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  color: #667eea;
+}
+
+.bullet {
+  color: #555;
+  margin-left: 4px;
+  margin-bottom: 4px;
+  line-height: 1.6;
+}
+
+/* IP Analysis Section Styles */
+.ip-analysis-container {
+  display: grid;
+  gap: 16px;
+}
+
+.ip-entry {
+  padding: 16px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #f0f2f7 100%);
+  border-left: 4px solid #667eea;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.ip-entry:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.ip-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.domain-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.risk-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.risk-high {
+  background: #ffd6d6;
+  color: #d70015;
+}
+
+.risk-medium {
+  background: #fffe7e;
+  color: #ff8c00;
+}
+
+.risk-low {
+  background: #d6f4d6;
+  color: #007a00;
+}
+
+.ip-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  font-size: 13px;
+}
+
+.detail-item {
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 6px;
+}
+
+.detail-label {
+  color: #666;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.detail-value {
+  color: #1d1d1f;
+  font-weight: 600;
+}
+
+.risk-analysis {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.risk-factors {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.6;
+}
+
+.risk-factor {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.risk-factor-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.factor-warning {
+  background: #ffd6d6;
+  color: #d70015;
+}
+
+.factor-info {
+  background: #e8eef7;
+  color: #667eea;
+}
+
+.no-visits {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 14px;
+}
+
+/* Report Table Styles */
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+.report-table-header-row {
+  border-bottom: 2px solid #667eea;
+}
+
+.report-table-body-row {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.report-table-cell {
+  padding: 12px;
+  border-right: 1px solid #e0e0e0;
+}
+
+.report-table-cell-center {
+  text-align: center;
+  color: #999;
+}
+
+.analysis-error {
+  font-size: 14px;
+  color: #ff3b30;
+}
+
+.analysis-loading {
+  font-size: 14px;
+  color: #6e6e73;
+}
+
+/* Risk Badge Styles for Reports */
+.risk-badge-high-report {
+  background: #ffd6d6;
+  color: #d70015;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.risk-badge-medium-report {
+  background: #fffe7e;
+  color: #ff8c00;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.risk-badge-low-report {
+  background: #d6f4d6;
+  color: #007a00;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+  }
+
+  .export-btn {
+    margin-top: 12px;
+    width: 100%;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

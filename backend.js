@@ -15,7 +15,7 @@ app.post("/analyze", async (req, res) => {
   const trackingSummary = generateTrackingSummary(tracking);
 
   const prompt = `
-You are a productivity and behaviour analysis assistant with expertise in privacy, security, and user engagement metrics.
+You are a productivity and behaviour analysis assistant with expertise in privacy, security, IP geolocation, and user engagement metrics.
 
 USER BROWSING ACTIVITY:
 ${JSON.stringify(activity, null, 2)}
@@ -26,11 +26,9 @@ ${trackingSummary}
 Based on this comprehensive user data, provide analysis on:
 
 1. **Behaviour Summary** - Key patterns in browsing habits
-2. **Privacy & Security Considerations** - Notable use of sensitive features (microphone, camera, autofill)
-3. **Productivity Assessment** - How time is distributed across activities
-4. **Engagement Patterns** - Notable interactions with forms and autofill
-5. **Gentle Improvement Suggestions** - Privacy-respecting recommendations
-6. **Risk Assessment** - media usage and autofill patterns along with website name where media access was requested
+2. **IP & Geographic Analysis** - Analysis of IP addresses
+3. **Privacy & Security Assessment** - Microphone/camera access, autofill usage, sensitive fields, and potential risks
+4. **Gentle Improvement Suggestions** - Privacy-respecting recommendations, framed positively, to enhance user security and productivity without being intrusive
 
 Format your response with clear sections and bullet points.
 `;
@@ -63,6 +61,45 @@ function generateTrackingSummary(tracking) {
   } = tracking;
 
   let summary = "";
+
+  // IP and Domain Risk Summary
+  if (pageVisits.length > 0) {
+    const domainsVisited = new Set(pageVisits.map((v) => v.domain));
+    summary += `## Pages Visited & IP Information\n`;
+    summary += `- Total page visits tracked: ${pageVisits.length}\n`;
+    summary += `- Unique domains: ${domainsVisited.size}\n`;
+
+    // Add IP-based risk summary
+    const ipRisks = pageVisits.reduce((acc, visit) => {
+      if (visit.ipData) {
+        const domain = visit.domain;
+        if (!acc[domain]) {
+          acc[domain] = {
+            ip: visit.ipData.ip,
+            country: visit.ipData.country,
+            isVPN: visit.ipData.isVPN,
+            isProxy: visit.ipData.isProxy,
+            visits: 0,
+          };
+        }
+        acc[domain].visits++;
+      }
+      return acc;
+    }, {});
+
+    if (Object.keys(ipRisks).length > 0) {
+      summary += "\n### Domain IP Details:\n";
+      Object.entries(ipRisks).forEach(([domain, data]) => {
+        let riskIndicators = [];
+        if (data.isVPN) riskIndicators.push("VPN");
+        if (data.isProxy) riskIndicators.push("Proxy");
+        const riskStr =
+          riskIndicators.length > 0 ? ` [${riskIndicators.join(", ")}]` : "";
+        summary += `- ${domain}: IP ${data.ip} (${data.country})${riskStr}\n`;
+      });
+    }
+    summary += "\n";
+  }
 
   // Media Access Summary
   if (mediaAccess.length > 0) {
@@ -130,14 +167,6 @@ function generateTrackingSummary(tracking) {
       summary += `- ${type} fields: ${count} page(s)\n`;
     });
     summary += "\n";
-  }
-
-  // Page visit summary
-  if (pageVisits.length > 0) {
-    const domainsVisited = new Set(pageVisits.map((v) => v.domain));
-    summary += `## Pages Visited\n`;
-    summary += `- Total page visits tracked: ${pageVisits.length}\n`;
-    summary += `- Unique domains: ${domainsVisited.size}\n`;
   }
 
   return summary || "No tracking data collected yet.";

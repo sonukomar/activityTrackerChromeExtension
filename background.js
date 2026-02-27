@@ -1,5 +1,188 @@
 let activeTabId = null;
 let startTime = null;
+const ipCache = {}; // Cache IP lookups
+const failedLookups = {}; // Track failed lookups to avoid repeated attempts
+const API_TIMEOUT = 3000; // 3 second timeout for API calls
+
+// Helper function to extract domain from URL
+function extractDomain(url) {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url;
+  }
+}
+
+// Simple DNS-based IP lookup using public DNS API
+async function lookupWithDNS(domain) {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+
+    const response = await fetch(
+      `https://dns.google/resolve?name=${domain}&type=A`,
+      { signal: controller.signal },
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error(`DNS lookup failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (data.Answer && data.Answer.length > 0) {
+      // Get the first A record (IP address)
+      const ipRecord = data.Answer.find((r) => r.type === 1);
+      if (ipRecord) {
+        console.log(`DNS lookup successful for ${domain}: ${ipRecord.data}`);
+        return ipRecord.data; // Return the IP address
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.warn(`DNS lookup failed for ${domain}:`, error.message);
+    return null;
+  }
+}
+
+// Geolocation lookup using ip-api.com
+async function lookupGeolocation(ip) {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+
+    const response = await fetch(
+      `https://ip-api.com/json/${ip}?fields=query,country,isp,org,mobile,proxy,hosting`,
+      { signal: controller.signal },
+    );
+
+    clearTimeout(timeoutId);
+
+    if (response.status === 429) {
+      console.warn("IP-API rate limit reached, using basic lookup");
+      return null; // Rate limited
+    }
+
+    if (response.status === 403) {
+      console.warn("IP-API blocked this request");
+      return null; // Forbidden
+    }
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (data.status !== "success") {
+      console.warn(`Geolocation lookup failed: ${data.message}`);
+      return null;
+    }
+
+    return {
+      ip: data.query || ip,
+      country: data.country || "Unknown",
+      isp: data.isp || "Unknown",
+      org: data.org || "Unknown",
+      isVPN: data.proxy || false,
+      isProxy: data.proxy || false,
+      isBogon: false,
+      isHosting: data.hosting || false,
+      isMobile: data.mobile || false,
+    };
+  } catch (error) {
+    console.warn(`Geolocation lookup failed for ${ip}:`, error.message);
+    return null;
+  }
+}
+
+// Fetch IP address for a domain with fallback strategies
+async function getIPAddress(domain) {
+  if (ipCache[domain]) {
+    return ipCache[domain];
+  }
+
+  // Check if we recently failed to lookup this domain
+  if (failedLookups[domain] && Date.now() - failedLookups[domain] < 3600000) {
+    // Don't retry for 1 hour after a failed lookup
+    return {
+      ip: "Unknown",
+      country: "Unknown",
+      isp: "Unknown",
+      error: "lookup_cached_failed",
+    };
+  }
+
+  try {
+    // Handle localhost specially
+    if (domain === "localhost" || domain === "127.0.0.1") {
+      ipCache[domain] = {
+        ip: "127.0.0.1",
+        country: "Local",
+        isp: "Localhost",
+        isVPN: false,
+        isProxy: false,
+        isBogon: true,
+      };
+      return ipCache[domain];
+    }
+
+    // Strategy 1: Try combined lookup with ip-api.com directly on domain
+    let ipData = await lookupGeolocation(domain);
+
+    if (!ipData) {
+      // Strategy 2: Try DNS lookup first, then get geolocation
+      const ip = await lookupWithDNS(domain);
+
+      if (ip) {
+        ipData = await lookupGeolocation(ip);
+
+        if (!ipData) {
+          // If geolocation fails, at least return the IP
+          ipData = {
+            ip: ip,
+            country: "Unknown",
+            isp: "Unknown",
+            org: "Unknown",
+            isVPN: false,
+            isProxy: false,
+            isBogon: false,
+            isHosting: false,
+            isMobile: false,
+          };
+        }
+      }
+    }
+
+    if (!ipData) {
+      // Mark as failed lookup
+      failedLookups[domain] = Date.now();
+      console.warn(`Could not lookup IP for ${domain} using any method`);
+      return {
+        ip: "Unknown",
+        country: "Unknown",
+        isp: "Unknown",
+        error: "lookup_failed",
+      };
+    }
+
+    ipCache[domain] = ipData;
+    console.log(`IP lookup successful for ${domain}:`, ipData);
+    return ipData;
+  } catch (error) {
+    failedLookups[domain] = Date.now();
+    console.error(`Failed to get IP for ${domain}:`, error.message);
+    return {
+      ip: "Unknown",
+      country: "Unknown",
+      isp: "Unknown",
+      error: error.message,
+    };
+  }
+}
 
 function trackPreviousTab() {
   if (!activeTabId || !startTime) return;
@@ -46,12 +229,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     switch (type) {
       case "PAGE_VISIT":
-        tracking.pageVisits.push({
-          url,
-          domain,
-          timestamp,
+        // Get IP address for the domain and store with visit
+        getIPAddress(domain).then((ipData) => {
+          tracking.pageVisits.push({
+            url,
+            domain,
+            timestamp,
+            ipData,
+          });
+          chrome.storage.local.set({ tracking });
+          console.log("Tracked PAGE_VISIT with IP:", ipData);
         });
-        console.log("Tracked PAGE_VISIT");
         break;
 
       case "MEDIA_ACCESS_STARTED":
@@ -125,10 +313,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         break;
     }
 
-    chrome.storage.local.set({ tracking });
+    // Only save to storage for non-PAGE_VISIT events (PAGE_VISIT handles its own save)
+    if (type !== "PAGE_VISIT") {
+      chrome.storage.local.set({ tracking });
+    }
+
+    sendResponse({ received: true });
   });
 
-  sendResponse({ received: true });
+  return true; // Keep message channel open for async operations
 });
 
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
