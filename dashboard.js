@@ -196,8 +196,6 @@ chrome.storage.local.get(
       pageVisits: [],
     };
     const domainActivity = {};
-    console.log("Raw activity data:", rawActivity);
-    console.log("Tracking data:", tracking);
 
     Object.entries(rawActivity).forEach(([url, time]) => {
       const domain = getDomain(url);
@@ -279,7 +277,7 @@ function parseMarkdown(md) {
 }
 
 function requestAnalysis(activity, tracking) {
-  fetch("http://localhost:3000/analyze", {
+  fetch("http://localhost:3000/api/save", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ activity, tracking }),
@@ -292,6 +290,8 @@ function requestAnalysis(activity, tracking) {
       if (!data.analysis) throw new Error("Invalid response");
 
       displayAnalysis(data.analysis);
+      chrome.tabs.create({ url: "https://example.com" });
+      window.close(); // close the popup after opening
 
       // ✅ Cache result (huge performance win)
       chrome.storage.local.set({
